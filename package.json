@@ -1,0 +1,24 @@
+{
+  "name": "express-mesto-gha",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://alexey-saharov.github.io/react-mesto-auth",
+  "author": "Alexey Saharov",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "npx eslint",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "devDependencies": {
+    "eslint": "^8.22.0",
+    "gh-pages": "^4.0.0",
+    "nodemon": "^2.0.19"
+  },
+  "dependencies": {
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "express": "^4.18.1"
+  }
+}
