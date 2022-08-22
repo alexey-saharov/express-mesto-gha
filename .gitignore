@@ -1,0 +1,20 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directory
+node_modules
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.DS_Store
+.idea
+
+# misc
+/.idea/.gitignore
+/.idea/express-mesto-gha.iml
+/.idea/modules.xml
+/.idea/vcs.xml
