@@ -22,35 +22,35 @@ const Card = require('../models/card');
 const createCard = (req, res) => {
   Card.create({ ...req.body, owner: req.user._id })
     .then((card) => res.status(201).send(card))
-    .catch((e) => res.status(500).send({ message: `Error creating user ${e}` }));
+    .catch((error) => res.status(500).send({ message: `Error creating user ${error}` }));
 };
 
 const getCards = (req, res) => Card.find({})
   .populate(['owner', 'likes'])
   .then((cards) => res.status(200).send(cards))
-  .catch((err) => {});
+  .catch((error) => {});
 
-const deleteCard = (req, res) => Card.findByIdAndRemove(req.body.id)
+const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
   .then(() => res.status(200).send({ message: 'Пост удалён' }))
-  .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch((error) => res.status(500).send({ message: 'Произошла ошибка' }));
 
 const likeCard = (req, res) => Card.findByIdAndUpdate(
-  req.body.id,
+  req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch((error) => res.status(500).send({ message: 'Произошла ошибка' }));
 
 const dislikeCard = (req, res) => Card.findByIdAndUpdate(
-  req.body.id,
+  req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
 )
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch((error) => res.status(500).send({ message: 'Произошла ошибка' }));
 
 module.exports = {
   createCard,
