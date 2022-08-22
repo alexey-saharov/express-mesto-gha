@@ -1,19 +1,6 @@
 const User = require('../models/user');
 const { UserNotFound } = require('../errors/userNotFound');
 
-// 200 - success
-// 201 - success, resource created
-// 400 - not valid data
-// 401 - not authorized
-// 403 - authorized, no access
-// 404 - not found
-// 422 - unprocessable entity
-// 500 - server error
-
-// Перед отправкой ошибки не забудьте проверить ее, например так:
-//   const ERROR_CODE = 400;
-// if (err.name === 'SomeErrorName') return res.status(ERROR_CODE).send(...)
-
 const createUser = (req, res) => User.create(req.body)
   .then((user) => res.status(201).send({ user }))
   .catch((error) => {
@@ -45,16 +32,38 @@ const getUsers = (req, res) => User.find({})
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user.userId, { name, about }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+    .orFail(() => {
+      throw new UserNotFound();
+    })
     .then((user) => res.send(user))
-    .catch((error) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        res.status(400).send({ message: `Error validation error ${error}` });
+      } else if (error.name === 'UserNotFound') {
+        res.status(error.status).send({ message: 'Запрашиваемый пользователь не найден' });
+      } else {
+        res.status(500).send({ message: `Internal server error ${error}` });
+      }
+    });
 };
 
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user.userId, { avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+    .orFail(() => {
+      throw new UserNotFound();
+    })
     .then((user) => res.send(user))
-    .catch((error) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        res.status(400).send({ message: `Error validation error ${error}` });
+      } else if (error.name === 'UserNotFound') {
+        res.status(error.status).send({ message: 'Запрашиваемый пользователь не найден' });
+      } else {
+        res.status(500).send({ message: `Internal server error ${error}` });
+      }
+    });
 };
 
 module.exports = {
