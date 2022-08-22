@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const { UserNotFound } = require('../errors/userNotFound');
 
 // 200 - success
 // 201 - success, resource created
@@ -13,23 +14,6 @@ const User = require('../models/user');
 //   const ERROR_CODE = 400;
 // if (err.name === 'SomeErrorName') return res.status(ERROR_CODE).send(...)
 
-class ApplicationError extends Error {
-  constructor(status = 500, message = 'Internal Error') {
-    super();
-    this.status = status;
-    this.message = message;
-    this.name = this.constructor.name;
-
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-class UserNotFound extends ApplicationError {
-  constructor() {
-    super(404, 'User not found');
-  }
-}
-
 const createUser = (req, res) => User.create(req.body)
   .then((user) => res.status(201).send({ user }))
   .catch((error) => {
@@ -42,12 +26,10 @@ const createUser = (req, res) => User.create(req.body)
 
 const getUser = (req, res) => User.findById(req.params.userId)
   .orFail(() => {
-    console.log('1');
     throw new UserNotFound();
   })
   .then((user) => res.status(200).send(user))
   .catch((error) => {
-    console.log(req.params.userId);
     if (error.name === 'UserNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемый пользователь не найден' });
     } else {
