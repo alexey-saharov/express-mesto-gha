@@ -17,7 +17,9 @@ const getUser = (req, res) => User.findById(req.params.userId)
   })
   .then((user) => res.status(200).send(user))
   .catch((error) => {
-    if (error.name === 'UserNotFound') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
+      res.status(400).send({ message: `Error validation error ${error}` });
+    } else if (error.name === 'UserNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемый пользователь не найден' });
     } else {
       res.status(500).send({ message: `Internal server error ${error}` });

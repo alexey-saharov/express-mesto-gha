@@ -26,7 +26,9 @@ const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
   })
   .then(() => res.status(200).send({ message: 'Пост удалён' }))
   .catch((error) => {
-    if (error.name === 'CardNotFound') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
+      res.status(400).send({ message: `Error validation error ${error}` });
+    } else if (error.name === 'CardNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
     } else {
       res.status(500).send({ message: `Internal server error ${error}` });
@@ -44,7 +46,7 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
   .catch((error) => {
-    if (error.name === 'ValidationError') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(400).send({ message: `Error validation error ${error}` });
     } else if (error.name === 'CardNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
@@ -64,7 +66,7 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
   .catch((error) => {
-    if (error.name === 'ValidationError') {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
       res.status(400).send({ message: `Error validation error ${error}` });
     } else if (error.name === 'CardNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
