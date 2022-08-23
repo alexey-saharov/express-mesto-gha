@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const incorrectRouter = require('./routes/incorrectRouter');
+const incorrectRouter = require('./routes/incorrectUrl');
 
 const { PORT = 3000 } = process.env;
 const app = express();
