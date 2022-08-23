@@ -1,5 +1,5 @@
 const { ApplicationError } = require('./applicationError');
-const { CODE } = require('../utils/constants');
+const CODE = require('../utils/constants');
 
 class UserNotFound extends ApplicationError {
   constructor() {

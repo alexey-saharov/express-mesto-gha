@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const { CardNotFound } = require('../errors/cardNotFound');
-const { CODE } = require('../utils/constants');
+const CODE = require('../utils/constants');
 
 const createCard = (req, res) => {
   Card.create({ ...req.body, owner: req.user._id })

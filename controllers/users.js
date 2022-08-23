@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const { UserNotFound } = require('../errors/userNotFound');
-const { CODE } = require('../utils/constants');
+const CODE = require('../utils/constants');
 
 const createUser = (req, res) => User.create(req.body)
   .then((user) => res.status(CODE.SUCCESS_CREATED).send({ user }))
