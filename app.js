@@ -6,6 +6,7 @@ const { auth } = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const incorrectRouter = require('./routes/incorrectUrl');
+const { CODE } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,8 +26,24 @@ app.use('/cards', cardsRouter);
 
 app.use('/', incorrectRouter);
 
-app.use((err, req, res) => {
-  res.status(err.statusCode).send({ message: err.message });
+app.use((err, req, res, next) => {
+  if (
+    err.name === 'NotAuthorized'
+    || err.name === 'UserNotFound'
+    || err.name === 'CardNotFound'
+    || err.name === 'NoAccess'
+    || err.name === 'UrlNotFound'
+  ) {
+    res.status(err.status).send({ message: `${err.message}` });
+  } else if (err.code === 11000) {
+    res.status(CODE.CONFLICT).send({ message: `${err.message}` });
+  } else if (err.name === 'CastError') {
+    res.status(CODE.NOT_VALID_DATA).send({ message: `CastError - ${err.message}` });
+  } else if (err.name === 'ValidationError') {
+    res.status(CODE.NOT_VALID_DATA).send({ message: `Validation error - ${err.message}` });
+  } else {
+    res.status(CODE.SERVER_ERROR).send({ message: `Internal server error - ${err.message}` });
+  }
 });
 
 app.listen(PORT, () => {

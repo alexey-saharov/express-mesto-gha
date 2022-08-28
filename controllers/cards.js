@@ -1,28 +1,21 @@
 const Card = require('../models/card');
 const { CardNotFound } = require('../errors/cardNotFound');
+const { NoAccess } = require('../errors/noAccess');
 const { CODE } = require('../utils/constants');
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(CODE.SUCCESS_CREATED).send(card))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(CODE.NOT_VALID_DATA).send({ message: `Error validation error ${error.message}` });
-      } else {
-        res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-      }
-    });
+    .catch(next);
 };
 
-const getCards = (req, res) => Card.find({})
+const getCards = (req, res, next) => Card.find({})
   .populate(['owner', 'likes'])
   .then((cards) => res.send(cards))
-  .catch((error) => {
-    res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-  });
+  .catch(next);
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .populate(['owner'])
     .orFail(() => {
@@ -30,33 +23,16 @@ const deleteCard = (req, res) => {
     })
     .then((card) => {
       if (card.owner.id !== req.user._id) {
-        res.status(CODE.AUTHORIZED_NO_ACCESS).send({ message: 'Нет доступа на удаление чужого поста' });
-        return;
+        throw new NoAccess();
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then(() => res.send({ message: 'Пост удалён' }))
-        .catch((error) => {
-          if (error.name === 'CastError') {
-            res.status(CODE.NOT_VALID_DATA).send({ message: `Error ${error.message}` });
-          } else if (error.name === 'CardNotFound') {
-            res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
-          } else {
-            res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-          }
-        });
+        .catch(next);
     })
-    .catch((error) => {
-      if (error.name === 'CastError') {
-        res.status(CODE.NOT_VALID_DATA).send({ message: `Error ${error.message}` });
-      } else if (error.name === 'CardNotFound') {
-        res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
-      } else {
-        res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-      }
-    });
+    .catch(next);
 };
 
-const likeCard = (req, res) => Card.findByIdAndUpdate(
+const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
@@ -66,17 +42,9 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   })
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch((error) => {
-    if (error.name === 'CastError') {
-      res.status(CODE.NOT_VALID_DATA).send({ message: `Validation error ${error.message}` });
-    } else if (error.name === 'CardNotFound') {
-      res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
-    } else {
-      res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-    }
-  });
+  .catch(next);
 
-const dislikeCard = (req, res) => Card.findByIdAndUpdate(
+const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
@@ -86,15 +54,7 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   })
   .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch((error) => {
-    if (error.name === 'CastError') {
-      res.status(CODE.NOT_VALID_DATA).send({ message: `Error validation error ${error.message}` });
-    } else if (error.name === 'CardNotFound') {
-      res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
-    } else {
-      res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-    }
-  });
+  .catch(next);
 
 module.exports = {
   createCard,
