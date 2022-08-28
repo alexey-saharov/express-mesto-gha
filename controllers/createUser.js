@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const CODE = require('../utils/constants');
+const { CODE } = require('../utils/constants');
 
 const createUser = (req, res) => {
   const {

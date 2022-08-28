@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
+const { SECRET_KEY } = require('../utils/constants');
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
-
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return res
       .status(401)
@@ -13,7 +13,7 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, 'My-top-secret-key');
+    payload = jwt.verify(token, SECRET_KEY);
   } catch (err) {
     return res
       .status(401)
@@ -22,7 +22,7 @@ const auth = (req, res, next) => {
 
   req.user = payload;
 
-  next();
+  return next();
 };
 
 module.exports = { auth };

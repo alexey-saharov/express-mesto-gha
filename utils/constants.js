@@ -9,4 +9,6 @@ const CODE = {
   SERVER_ERROR: 500,
 };
 
-module.exports = CODE;
+const SECRET_KEY = 'My-top-secret-key';
+
+module.exports = { CODE, SECRET_KEY };

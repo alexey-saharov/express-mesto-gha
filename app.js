@@ -25,6 +25,10 @@ app.use('/cards', cardsRouter);
 
 app.use('/', incorrectRouter);
 
+app.use((err, req, res) => {
+  res.status(err.statusCode).send({ message: err.message });
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });

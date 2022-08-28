@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 const { CardNotFound } = require('../errors/cardNotFound');
-const CODE = require('../utils/constants');
+const { CODE } = require('../utils/constants');
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
@@ -22,20 +22,39 @@ const getCards = (req, res) => Card.find({})
     res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
   });
 
-const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.cardId)
-  .orFail(() => {
-    throw new CardNotFound();
-  })
-  .then(() => res.send({ message: 'Пост удалён' }))
-  .catch((error) => {
-    if (error.name === 'CastError') {
-      res.status(CODE.NOT_VALID_DATA).send({ message: `Error ${error.message}` });
-    } else if (error.name === 'CardNotFound') {
-      res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
-    } else {
-      res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
-    }
-  });
+const deleteCard = (req, res) => {
+  Card.findById(req.params.cardId)
+    .populate(['owner'])
+    .orFail(() => {
+      throw new CardNotFound();
+    })
+    .then((card) => {
+      if (card.owner.id !== req.user._id) {
+        res.status(CODE.AUTHORIZED_NO_ACCESS).send({ message: 'Нет доступа на удаление чужого поста' });
+        return;
+      }
+      Card.findByIdAndRemove(req.params.cardId)
+        .then(() => res.send({ message: 'Пост удалён' }))
+        .catch((error) => {
+          if (error.name === 'CastError') {
+            res.status(CODE.NOT_VALID_DATA).send({ message: `Error ${error.message}` });
+          } else if (error.name === 'CardNotFound') {
+            res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
+          } else {
+            res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
+          }
+        });
+    })
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        res.status(CODE.NOT_VALID_DATA).send({ message: `Error ${error.message}` });
+      } else if (error.name === 'CardNotFound') {
+        res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
+      } else {
+        res.status(CODE.SERVER_ERROR).send({ message: `Internal server error ${error.message}` });
+      }
+    });
+};
 
 const likeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -49,7 +68,7 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   .then((card) => res.send(card))
   .catch((error) => {
     if (error.name === 'CastError') {
-      res.status(CODE.NOT_VALID_DATA).send({ message: `Error validation error ${error.message}` });
+      res.status(CODE.NOT_VALID_DATA).send({ message: `Validation error ${error.message}` });
     } else if (error.name === 'CardNotFound') {
       res.status(error.status).send({ message: 'Запрашиваемая карточка не найдена' });
     } else {
