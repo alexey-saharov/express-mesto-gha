@@ -1,6 +1,6 @@
 const { UrlNotFound } = require('../errors/urlNotFound');
 
-const getUrlError = (req, res, next) => {
+const getUrlError = () => {
   throw new UrlNotFound();
 };
 

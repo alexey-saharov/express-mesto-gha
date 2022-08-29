@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-        const regex = /https?:\/\/[\w\-\.~:\/\?#\[\]@!$&'\(\)*\+,;=]{1,2000}/gi;
+        const regex = /https?:\/\/[\w\-.~:/?#[\]@!$&'()*+,;=]{1,2000}/gi;
         return v === v.match(regex)[0];
       },
       message: 'Некорректная ссылка на аватар',

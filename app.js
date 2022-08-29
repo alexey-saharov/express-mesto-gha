@@ -58,6 +58,7 @@ app.use((err, req, res, next) => {
   } else {
     res.status(CODE.SERVER_ERROR).send({ message: `Internal server error - ${err.message}` });
   }
+  next();
 });
 
 app.listen(PORT, () => {
