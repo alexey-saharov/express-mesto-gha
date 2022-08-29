@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors, celebrate, Joi } = require('celebrate');
 const { login } = require('./controllers/login');
 const { createUser } = require('./controllers/createUser');
 const { auth } = require('./middlewares/auth');
@@ -16,8 +17,19 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 
 app.use(auth);
 
@@ -25,6 +37,8 @@ app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
 app.use('/', incorrectRouter);
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   if (
