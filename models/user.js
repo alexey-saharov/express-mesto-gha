@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const { AVATAR_LINK_REGEXP } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -38,9 +37,7 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-        // const regex = /https?:\/\/[\w\-.~:/?#[\]@!$&'()*+,;=]{1,2000}/gi;
-        // const regex = new RegExp('^[a-zA-Z0-9]{3,30}$');
-        return v === v.match(AVATAR_LINK_REGEXP)[0];
+        return v === v.match(/https?:\/\/[\w\-.~:/?#[\]@!$&'()*+,;=]{1,2000}/gi)[0];
       },
       message: 'Некорректная ссылка на аватар',
     },
