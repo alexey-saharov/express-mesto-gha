@@ -7,7 +7,7 @@ const { auth } = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const incorrectRouter = require('./routes/incorrectUrl');
-const { CODE } = require('./utils/constants');
+const { CODE, AVATAR_LINK_REGEXP } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -30,7 +30,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().pattern(new RegExp(`${AVATAR_LINK_REGEXP}`)),
   }),
 }), createUser);
 
