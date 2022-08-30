@@ -50,6 +50,7 @@ app.use((err, req, res, next) => {
     || err.name === 'CardNotFound'
     || err.name === 'NoAccess'
     || err.name === 'UrlNotFound'
+    || err.name === 'UserAlreadyExist'
   ) {
     res.status(err.status).send({ message: `${err.message}` });
   } else if (err.code === 11000) {
