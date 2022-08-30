@@ -18,7 +18,7 @@ const createUser = (req, res, next) => {
         throw new UserAlreadyExist();
       } else {
         bcrypt.hash(reqUser.password, 10)
-          .then((hash) => User.create({ password: hash, ...reqUser })
+          .then((hash) => User.create({ ...reqUser, password: hash })
             .then((user) => {
               const {
                 name,
