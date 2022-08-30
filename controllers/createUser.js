@@ -20,8 +20,18 @@ const createUser = (req, res, next) => {
         bcrypt.hash(reqUser.password, 10)
           .then((hash) => User.create({ password: hash, ...reqUser })
             .then((user) => {
-              const { name, email } = user;
-              res.status(CODE.SUCCESS_CREATED).send({ name, email });
+              const {
+                name,
+                about,
+                avatar,
+                email,
+              } = user;
+              res.status(CODE.SUCCESS_CREATED).send({
+                name,
+                about,
+                avatar,
+                email,
+              });
             })
             .catch(next));
       }
