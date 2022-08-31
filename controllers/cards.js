@@ -2,22 +2,29 @@ const Card = require('../models/card');
 const { CardNotFound } = require('../errors/cardNotFound');
 const { NoAccess } = require('../errors/noAccess');
 const { CODE } = require('../utils/constants');
+const { ApplicationError } = require('../errors/applicationError');
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(CODE.SUCCESS_CREATED).send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
+      } else {
+        next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
+      }
+    });
 };
 
 const getCards = (req, res, next) => Card.find({})
-  .populate(['owner', 'likes'])
   .then((cards) => res.send(cards))
-  .catch(next);
+  .catch((err) => {
+    next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
+  });
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .populate(['owner'])
     .orFail(() => {
       throw new CardNotFound();
     })
@@ -26,10 +33,21 @@ const deleteCard = (req, res, next) => {
         throw new NoAccess();
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then(() => res.send({ message: 'Пост удалён' }))
-        .catch(next);
+        .then(() => res.send({ message: 'Пост удалён' }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CardNotFound' || err.name === 'NoAccess') {
+        next(err);
+      } else if (err.code === 11000) {
+        next(new ApplicationError(CODE.CONFLICT, err.message));
+      } else if (err.name === 'CastError') {
+        next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
+      } else if (err.name === 'ValidationError') {
+        next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
+      } else {
+        next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
+      }
+    });
 };
 
 const likeCard = (req, res, next) => Card.findByIdAndUpdate(
@@ -40,9 +58,20 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new CardNotFound();
   })
-  .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch(next);
+  .catch((err) => {
+    if (err.name === 'CardNotFound') {
+      next(err);
+    } else if (err.code === 11000) {
+      next(new ApplicationError(CODE.CONFLICT, err.message));
+    } else if (err.name === 'CastError') {
+      next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
+    } else if (err.name === 'ValidationError') {
+      next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
+    } else {
+      next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
+    }
+  });
 
 const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -52,9 +81,20 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   .orFail(() => {
     throw new CardNotFound();
   })
-  .populate(['owner', 'likes'])
   .then((card) => res.send(card))
-  .catch(next);
+  .catch((err) => {
+    if (err.name === 'CardNotFound') {
+      next(err);
+    } else if (err.code === 11000) {
+      next(new ApplicationError(CODE.CONFLICT, err.message));
+    } else if (err.name === 'CastError') {
+      next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
+    } else if (err.name === 'ValidationError') {
+      next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
+    } else {
+      next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
+    }
+  });
 
 module.exports = {
   createCard,

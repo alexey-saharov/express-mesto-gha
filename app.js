@@ -7,7 +7,7 @@ const { auth } = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const incorrectRouter = require('./routes/incorrectUrl');
-const { CODE, LINK_REGEXP } = require('./utils/constants');
+const { LINK_REGEXP } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,14 +20,14 @@ app.use(express.json());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 }), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(LINK_REGEXP),
@@ -44,24 +44,7 @@ app.use('/', incorrectRouter);
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  if (
-    err.name === 'NotAuthorized'
-    || err.name === 'UserNotFound'
-    || err.name === 'CardNotFound'
-    || err.name === 'NoAccess'
-    || err.name === 'UrlNotFound'
-    || err.name === 'UserAlreadyExist'
-  ) {
-    res.status(err.status).send({ message: `${err.message}` });
-  } else if (err.code === 11000) {
-    res.status(CODE.CONFLICT).send({ message: `${err.message}` });
-  } else if (err.name === 'CastError') {
-    res.status(CODE.NOT_VALID_DATA).send({ message: `CastError - ${err.message}` });
-  } else if (err.name === 'ValidationError') {
-    res.status(CODE.NOT_VALID_DATA).send({ message: `Validation error - ${err.message}` });
-  } else {
-    res.status(CODE.SERVER_ERROR).send({ message: `Internal server error - ${err.message}` });
-  }
+  res.status(err.status).send({ message: err.message });
   next();
 });
 
