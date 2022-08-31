@@ -25,6 +25,7 @@ const getCards = (req, res, next) => Card.find({})
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .populate(['owner']) // card.owner.id is used below
     .orFail(() => {
       throw new CardNotFound();
     })
