@@ -12,6 +12,6 @@ const CODE = {
 
 const SECRET_KEY = 'My-top-secret-key';
 
-const LINK_REGEXP = /(https?:\/\/)?([\w\-.]+)\.([a-z]{2,6}\.?)(\/[\w\-.~:/?#[\]@!$&'()*+,;=]*)*\/?/;
+const LINK_REGEXP = /https?:\/\/(w{3}\.)?([\w-]+\.)+\w+(\/[\w\-.~:?#[\]@!$&'()*+,;=]+)*\/?/;
 
 module.exports = { CODE, SECRET_KEY, LINK_REGEXP };

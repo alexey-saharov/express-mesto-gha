@@ -39,12 +39,8 @@ const deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CardNotFound' || err.name === 'NoAccess') {
         next(err);
-      } else if (err.code === 11000) {
-        next(new ApplicationError(CODE.CONFLICT, err.message));
       } else if (err.name === 'CastError') {
         next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
-      } else if (err.name === 'ValidationError') {
-        next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
       } else {
         next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
       }
@@ -63,12 +59,8 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   .catch((err) => {
     if (err.name === 'CardNotFound') {
       next(err);
-    } else if (err.code === 11000) {
-      next(new ApplicationError(CODE.CONFLICT, err.message));
     } else if (err.name === 'CastError') {
       next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
-    } else if (err.name === 'ValidationError') {
-      next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
     } else {
       next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
     }
@@ -86,12 +78,8 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   .catch((err) => {
     if (err.name === 'CardNotFound') {
       next(err);
-    } else if (err.code === 11000) {
-      next(new ApplicationError(CODE.CONFLICT, err.message));
     } else if (err.name === 'CastError') {
       next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
-    } else if (err.name === 'ValidationError') {
-      next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
     } else {
       next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
     }

@@ -41,8 +41,6 @@ const createUser = (req, res, next) => {
         next(err);
       } else if (err.code === 11000) {
         next(new ApplicationError(CODE.CONFLICT, err.message));
-      } else if (err.name === 'CastError') {
-        next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
       } else if (err.name === 'ValidationError') {
         next(new ApplicationError(CODE.NOT_VALID_DATA, `Validation error - ${err.message}`));
       } else {

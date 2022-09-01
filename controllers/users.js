@@ -11,6 +11,8 @@ const getUser = (req, res, next) => User.findById(req.params.userId)
   .catch((err) => {
     if (err.name === 'UserNotFound') {
       next(err);
+    } else if (err.name === 'CastError') {
+      next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
     } else {
       next(new ApplicationError(CODE.SERVER_ERROR, `Internal server error - ${err.message}`));
     }
@@ -45,8 +47,6 @@ const updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'UserNotFound') {
         next(err);
-      } else if (err.code === 11000) {
-        next(new ApplicationError(CODE.CONFLICT, err.message));
       } else if (err.name === 'CastError') {
         next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
       } else if (err.name === 'ValidationError') {
@@ -67,8 +67,6 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'UserNotFound') {
         next(err);
-      } else if (err.code === 11000) {
-        next(new ApplicationError(CODE.CONFLICT, err.message));
       } else if (err.name === 'CastError') {
         next(new ApplicationError(CODE.NOT_VALID_DATA, `CastError - ${err.message}`));
       } else if (err.name === 'ValidationError') {
